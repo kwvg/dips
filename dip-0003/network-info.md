@@ -75,6 +75,36 @@ The network identifier field MUST support the following [extensions](#extensions
 
 * This field MUST be any integer between 1024 and 65535 but is RECOMMENDED to be the default port expected
   for the chain on which the masternode is operating.
+  * This field MUST NOT permit a value considered "prohibited" (see below)
+    
+    <details>
+
+    <summary>Prohibited ports:</summary>
+
+    | Port Number | Description                           |
+    | ----------- | ------------------------------------- |
+    | 1719        | H.323 registration                    |
+    | 1720        | H.323 call signaling                  |
+    | 1723        | Point-to-Point Tunneling Protocol     |
+    | 2049        | Network File System                   |
+    | 3659        | Apple SASL                            |
+    | 4045        | NFS lock daemon                       |
+    | 5060        | Session Initiation Protocol (SIP)     |
+    | 5061        | SIP over TLS                          |
+    | 6000        | X11                                   |
+    | 6566        | Scanner Access Now Easy (SANE) daemon |
+    | 6660–6664   | Internet Relay Chat (Unofficial)      |
+    | 6665-6669   | IRC (Official)                        |
+    | 6679        | IRC over TLS (Unofficial)             |
+    | 6697        | IRC over TLS (Official)               |
+    | 8332        | Bitcoin JSON-RPC server               |
+    | 8333        | Bitcoin P2P                           |
+    | 10080       | Amanda                                |
+    | 18332       | Bitcoin JSON-RPC server (Testnet)     |
+    | 18333       | Bitcoin P2P (Testnet)                 |
+
+    </details>
+
 * This field MUST be ignored for connecting to [`entry.address`](#entryaddress-field) of [`entry.type`](#entrytype-field)
   where ports are immaterial.
 
@@ -113,6 +143,7 @@ DNS records for a domain name MUST have a valid `A` or `AAAA` entry.
 
 ## References
 
+* [Bitcoin Core - Bad P2P Ports List](https://github.com/bitcoin/bitcoin/blob/a1db99adea36dbee1ec97ca1851edad12137feea/doc/p2p-bad-ports.md)
 * [BIP 0155: addrv2 message](https://github.com/bitcoin/bips/blob/17c04f9fa1ecae173d6864b65717e13dfc1880af/bip-0155.mediawiki)
 * [RFC 1035: Domain Names - Implementation and Specification](https://datatracker.ietf.org/doc/html/rfc1035)
 * [RFC 7085: Top-Level Domains That Are Already Dotless](https://datatracker.ietf.org/doc/html/rfc7085)
