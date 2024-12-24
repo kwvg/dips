@@ -21,7 +21,6 @@ Network information is invalid if any of these conditions are true:
 | ------- | ------- | -------- | ---------------------------------------------------------------------------------------- |
 | count   | uint_8  | 1        | Number of addresses through which the masternode is accessible                           |
 | entries | byte[]  | variable | Array of length `count` containing network information used to connect to the masternode |
-| port    | uint_16 | 2        | Port (network byte order)                                                                |
 
 ### `count` field
 
@@ -39,10 +38,11 @@ This field is an array of [`count`](#count-field) elements of type [`entry`](#en
 
 #### `entry` type
 
-| Field   | Type   | Size     | Description                                                     |
-| ------- | ------ | -------- | --------------------------------------------------------------- |
-| type    | uint_8 | 1        | Network identifier                                              |
-| address | byte[] | variable | Address of `type` that can be used to connect to the masternode |
+| Field   | Type    | Size     | Description                                                     |
+| ------- | ------- | -------- | --------------------------------------------------------------- |
+| type    | uint_8  | 1        | Network identifier                                              |
+| address | byte[]  | variable | Address of `type` that can be used to connect to the masternode |
+| port    | uint_16 | 2        | Port (network byte order)                                       |
 
 #### `entry.type` field
 
@@ -82,7 +82,7 @@ The network identifier field MUST support the following [extensions](#extensions
 * `address` of [`type`](#entrytype-field)s originating from [extensions](#extensions) MUST be compliant with the
   specification as defined (e.g. [Internet domain names](#extension-a-internet-domain-names))
 
-### `port` field
+#### `entry.port` field
 
 * This field MUST be any integer between 1024 and 65535 but is RECOMMENDED to be the default port expected
   for the chain on which the masternode is operating.
@@ -116,7 +116,7 @@ The network identifier field MUST support the following [extensions](#extensions
 
     </details>
 
-* This field MUST be ignored for connecting to [`entry.address`](#entryaddress-field) of [`entry.type`](#entrytype-field)
+* This field MUST be ignored for connecting to [`address`](#entryaddress-field) of [`type`](#entrytype-field)
   where ports are immaterial.
 
 ## Extensions
