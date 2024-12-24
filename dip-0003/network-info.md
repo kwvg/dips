@@ -34,11 +34,13 @@ This field is an array of [`p_count`](#p_count-field) elements of type [`p_entry
     * MUST have [`purpose`](#p_entrypurpose-field) code `CORE_P2P`
     * MUST be registered regardless of masternode type (as defined in [Appendix B](masternode-types.md)).
     * [`entries[0]`](#p_entryentries-field) MUST have a [`type`](#entrytype-field) of `0x01` (IPv4 address).
+    * [`entries`](#p_entryentries-field) MUST NOT have a [`type`](#entrytype-field) of `0xD0` (domain name).
 * `p_entries[1]`
     * MUST have [`purpose`](#p_entrypurpose-field) code `PLATFORM_P2P`.
     * MUST be registered for masternode type 1.
     * MUST NOT be registered for masternode type 0.
     * [`entries[0]`](#p_entryentries-field) MUST have a [`type`](#entrytype-field) of `0x01` (IPv4 address).
+    * [`entries`](#p_entryentries-field) MUST NOT have a [`type`](#entrytype-field) of `0xD0` (domain name).
 * `p_entries[2]`
     * MUST have [`purpose`](#p_entrypurpose-field) code `PLATFORM_API`.
     * MUST NOT be registered if `p_entries[1]` has not been registered. 
