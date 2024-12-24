@@ -17,24 +17,70 @@ Network information is invalid if any of these conditions are true:
 
 ## Extended Format
 
-| Field   | Type    | Size     | Description                                                                              |
-| ------- | ------- | -------- | ---------------------------------------------------------------------------------------- |
-| count   | uint_8  | 1        | Number of addresses through which the masternode is accessible                           |
-| entries | byte[]  | variable | Array of length `count` containing network information used to connect to the masternode |
+| Field     | Type    | Size     | Description                                                                                    |
+| --------- | ------- | -------- | ---------------------------------------------------------------------------------------------- |
+| p_count   | uint_8  | 1        | Number of purposes for which addresses are defined                                             |
+| p_entries | byte[]  | variable | Array of pairings between purpose codes and arrays of addresses containing network information |
 
-### `count` field
+### `p_count` field
+
+* The value of this field MUST correspond to the number of [`p_entries`](#p_entries-field)
+
+### `p_entries` field
+
+This field is an array of [`p_count`](#p_count-field) elements of type [`p_entry`](#p_entry-type) where:
+
+* `p_entries[0]`
+    * MUST have [`purpose`](#p_entrypurpose-field) code `CORE_P2P`
+    * MUST be registered regardless of masternode type (as defined in [Appendix B](masternode-types.md)).
+    * [`entries[0]`](#p_entryentries-field) MUST have a [`type`](#entrytype-field) of `0x01` (IPv4 address).
+* `p_entries[1]`
+    * MUST have [`purpose`](#p_entrypurpose-field) code `PLATFORM_P2P`.
+    * MUST be registered for masternode type 1.
+    * MUST NOT be registered for masternode type 0.
+    * [`entries[0]`](#p_entryentries-field) MUST have a [`type`](#entrytype-field) of `0x01` (IPv4 address).
+* `p_entries[2]`
+    * MUST have [`purpose`](#p_entrypurpose-field) code `PLATFORM_API`.
+    * MUST NOT be registered if `p_entries[1]` has not been registered. 
+    * MUST be registered for masternode type 1.
+    * MUST NOT be registered for masternode type 0.
+    * [`entries`](#p_entryentries-field) MUST have a [`type`](#entrytype-field) of `0xD0` (domain name).
+      * The element's [`address`](#entryaddress-field) MUST resolve to any [`address`](#entryaddress-field) in
+        `p_entries[1]` of [`type`](#entrytype-field) `0x01` (IPv4 address) or `0x02` (IPv6 address)
+        * This resolution check MUST be done during PoSe verification and is RECOMMENDED to be done by clients when
+          attempting to connect to nodes using the [`address`](#entryaddress-field) supplied.
+
+### `p_entry` type
+
+| Field     | Type    | Size     | Description                                                                        |
+| --------- | ------- | -------- | ---------------------------------------------------------------------------------- |
+| purpose   | uint_8  | 1        | Network activity associated with address information                               |
+| count     | uint_8  | 1        | Number of addresses through which the masternode is accessible                     |
+| entries   | byte[]  | variable | Array of length `count` containing network information used to connect to the node |
+
+#### `p_entry.purpose` field
+
+The value of this field MUST be set to one of the values given below
+
+| Purpose Code | Name           | Description                                              |
+| ------------ | -------------- | -------------------------------------------------------- |
+| `0x01`       | `CORE_P2P`     | A node running Dash Core, exposing P2P functionality     |
+| `0x02`       | `PLATFORM_P2P` | A node running Dash Platform, exposing P2P functionality |
+| `0x03`       | `PLATFORM_API` | A node running Dash Platform HTTP API endpoints          |
+
+#### `p_entry.count` field
 
 * The value of this field MUST correspond to the number of [`entry`](#entry-type) elements in the
   [`entries`](#entries-field) field.
 
-### `entries` field
+#### `p_entry.entries` field
 
-This field is an array of [`count`](#count-field) elements of type [`entry`](#entry-type) where:
+This field is an array of [`p_entry.count`](#p_entrycount-field) elements of type [`entry`](#entry-type) where:
 
 * There MUST be at least one element and at most thirty-two elements.
-* `entries[0]` MUST have a [`type`](#entrytype-field) of `0x01` (IPv4 address).
 * Elements in `entries` MUST allow duplicate [`type`](#entrytype-field)s but MUST NOT allow duplicate
-  [`address`](#entryaddress-field)es even if listed under unique [`type`](#entrytype-field)s.
+  [`address`](#entryaddress-field)es even if listed under unique [`type`](#entrytype-field)s unless it is registered
+  under a dissimilar [`purpose`](#p_entrypurpose-field) and differentiated by [`port`](#entryport-field).
 
 #### `entry` type
 
@@ -44,7 +90,7 @@ This field is an array of [`count`](#count-field) elements of type [`entry`](#en
 | address | byte[]  | variable | Address of `type` that can be used to connect to the masternode |
 | port    | uint_16 | 2        | Port (network byte order)                                       |
 
-#### `entry.type` field
+##### `entry.type` field
 
 The network identifier field MUST support the following BIP 155 [network IDs](https://github.com/bitcoin/bips/blob/17c04f9fa1ecae173d6864b65717e13dfc1880af/bip-0155.mediawiki#specification):
 
@@ -71,7 +117,7 @@ The network identifier field MUST support the following [extensions](#extensions
 
 * Network IDs not enumerated in the above tables MUST NOT be permitted
 
-#### `entry.address` field
+##### `entry.address` field
 
 * [`address`](#entryaddress-field) of [`type`](#entrytype-field)s originating from BIP 155 MUST be compliant with
   encoding standards as defined by BIP 155 (e.g.
@@ -82,7 +128,7 @@ The network identifier field MUST support the following [extensions](#extensions
 * `address` of [`type`](#entrytype-field)s originating from [extensions](#extensions) MUST be compliant with the
   specification as defined (e.g. [Internet domain names](#extension-a-internet-domain-names))
 
-#### `entry.port` field
+##### `entry.port` field
 
 * This field MUST be any integer between 1024 and 65535 but is RECOMMENDED to be the default port expected
   for the chain on which the masternode is operating.
